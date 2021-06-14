@@ -523,7 +523,7 @@ https://github.com/compound-finance/compound-protocol/blob/master/contracts/Time
 ** Alleviation
 The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
 
-Appendix
+* Appendix
 Finding Categories
 Gas Optimization
 Gas Optimization findings do not affect the functionality of the code but generate different, more

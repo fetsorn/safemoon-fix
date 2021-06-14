@@ -14,9 +14,10 @@ npx hardhat test
  - [X] SSL-02: L1159 condition !_isExcluded[sender] && !_isExcluded[recipient] can be included in else .
  - [X] SSL-05: Variables _tTotal , numTokensSellToAddToLiquidity , _name , _symbol and _decimals could be declared as constant
  - [X] SSL-11 | Typos in the contract
- - change inSwapAndLiquify visibility to private
- - remove rFee from transferStandard
- - [ ] comments
+ - [X] change inSwapAndLiquify visibility to private
+ - [X] comments
+ - [X] remove rFee from transferStandard
+ - [X] remove redundant code from constructor
 * draft changes
 ** constants
 #+begin_src diff
