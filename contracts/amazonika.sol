@@ -1,12 +1,4 @@
 /**
- *Submitted for verification at BscScan.com on 2021-03-01
-*/
-
-/**
- *Submitted for verification at BscScan.com on 2021-03-01
-*/
-
-/**
 
    #BEE
 
@@ -18,6 +10,9 @@
    I created a black hole so #Bee token will deflate itself in supply with every transaction
    50% Supply is burned at start.
 
+   #AMAZONIKA features:
+   4% fee auto add to charity
+   1% fee auto add to foundation
 
  */
 
