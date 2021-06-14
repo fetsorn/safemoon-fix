@@ -769,10 +769,6 @@ contract SafeMoon is Context, IERC20, Ownable {
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
 
-        // set premine don't needed in constructor since it can be done manually after deployment (burn too)
-        _rOwned[_charityAddress] = 0;
-        _rOwned[_foundationAddress] = 0;
-
         emit Transfer(address(0), _msgSender(), _T_TOTAL);
     }
 
