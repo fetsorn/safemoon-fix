@@ -1,6 +1,8 @@
 import { ethers, waffle } from 'hardhat'
 import { SafeMoon } from '../typechain/SafeMoon'
 
+const createFixtureLoader = waffle.createFixtureLoader
+
 describe('Amazonika', () => {
   const [wallet, other] = waffle.provider.getWallets()
 
