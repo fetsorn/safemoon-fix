@@ -734,7 +734,7 @@ contract SafeMoon is Context, IERC20, Ownable {
     IUniswapV2Router02 public immutable uniswapV2Router;
     address public immutable uniswapV2Pair;
 
-    bool inSwapAndLiquify;
+    bool private inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
 
     uint256 public _maxTxAmount = 5000000 * 10**6 * 10**9;
