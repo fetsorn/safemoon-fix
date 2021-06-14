@@ -415,8 +415,7 @@ Severity Informational
 Location Safemoon.sol
 Status Acknowledged
 ** Description
-In contract Safemoon , there are a bunch of functions can change state variables. However, these
-function do not emit event to pass the changes out of chain.
+In contract Safemoon , there are a bunch of functions can change state variables. However, these function do not emit event to pass the changes out of chain.
 ** Recommendation
 Recommend emitting events, for all the essential state variables that are possible to be changed during
 runtime.

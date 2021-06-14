@@ -750,7 +750,7 @@ contract SafeMoon is Context, IERC20, Ownable {
     event SwapAndLiquify(
         uint256 tokensSwapped,
         uint256 ethReceived,
-        uint256 tokensIntoLiqudity
+        uint256 tokensIntoLiquidity
     );
 
     modifier lockTheSwap {
@@ -927,7 +927,7 @@ contract SafeMoon is Context, IERC20, Ownable {
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
 
-     //to recieve ETH from uniswapV2Router when swaping
+     //to receive ETH from uniswapV2Router when swapping
     receive() external payable {}
 
     function _reflectFee(uint256 rFee, uint256 tFee) private {
