@@ -1,0 +1,601 @@
+Security Assessment
+SafeMoon
+May 3rd,
+* Summary
+This report has been prepared for SafeMoon smart contracts, to discover issues and vulnerabilities in
+the source code of their Smart Contract as well as any contract dependencies that were not part of an
+officially recognized library. A comprehensive examination has been performed, utilizing Dynamic
+Analysis, Static Analysis, and Manual Review techniques.
+The auditing process pays special attention to the following considerations:
+Testing the smart contracts against both common and uncommon attack vectors.
+Assessing the codebase to ensure compliance with current best practices and industry
+standards.
+Ensuring contract logic meets the specifications and intentions of the client.
+Cross referencing contract structure and implementation against similar smart contracts
+produced by industry leaders.
+Thorough line-by-line manual review of the entire codebase by industry experts.
+The security assessment resulted in findings that ranged from critical to informational. We recommend
+addressing these findings to ensure a high level of security standards and industry practices. We
+suggest recommendations that could better serve the project from the security perspective:
+Enhance general coding practices for better structures of source codes;
+Add enough unit tests to cover the possible use cases given they are currently missing in the
+repository;
+Provide more comments per each function for readability, especially contracts are verified in
+public;
+Provide more transparency on privileged activities once the protocol is live.
+
+* Overview
+Project Summary
+Project Name
+SafeMoon
+Description
+The SafeMoon contract is a mixture of RFI tokenomics with the added function
+of an auto-liquidity generating protocol.
+Platform
+BSC
+Language
+Solidity
+Codebase
+https://github.com/safemoonprotocol/Safemoon.sol
+Commits
+aab b
+b
+ec d
+d cf daf
+Audit Summary
+Delivery Date
+May ,
+Audit Methodology
+Static Analysis, Manual Review, Testnet Deployment
+Key Components
+Safemoon.sol
+Vulnerability Summary
+Total Issues
+Critical
+Major
+Medium
+Minor
+Informational
+Discussion
+
+Audit Scope
+ID
+file
+SSL
+Safemoon.sol
+SHA
+Checksum
+e c d aec dd a ddc e addc f f af cfb c
+f ab
+
+Understandings
+Overview
+The SafeMoon Protocol is a decentralized finance (DeFi) token deployed on the Binance smart chain
+(BSC). SafeMoon employs two novel features in its protocol; static rewards for each user as well as an
+LP acquisition mechanism. The static reward (also known as reflection) and LP acquisition mechanisms
+function as follows:
+Each SafeMoon transaction is taxed two % fees totalling % of the transaction amount. The first fee
+is redistributed to all existing holders using a form of rebasing mechanism whilst the other % is
+accumulated internally until a sufficient amount of capital has been amassed to perform an LP
+acquisition. When this number is reached, the total tokens accumulated are split with half being
+converted to BNB and the total being supplied to the PancakeSwap contract as liquidity.
+LP Acquisition
+The LP acquisition mechanism can be indirectly triggered by any normal transaction of the token as all
+transfers evaluate the set of conditions that trigger the mechanism. The main conditions of the
+mechanism are whether the sender is different than the LP pair and whether the accumulation
+threshold has been breached. Should these conditions be satisfied, the swapAndLiquify function is
+invoked with the current contract's SafeMoon balance.
+The swapAndLiquify function splits the contract's balance in two halves properly accounting for any
+truncation that may occur. The first half is swapped to BNB via the PancakeSwap Router using the
+SafeMoon-BNB pair and thus temporarily driving the price of the SafeMoon token down. Afterwards,
+the resulting BNB balance along with the remaining SafeMoon balance are supplied to the SafeMoonBNB liquidity pool as liquidity via the Router. The recipient of the LP units is defined as the current
+owner of the SafeMoon contract, a characteristic outlined in more depth within finding SSL- .
+Static Reward (Reflection)
+Balances in the SafeMoon token system are calculated in one of two ways. The first method, which
+most users should be familiar with, is a traditional fixed number of units being associated with a user's
+address. The second method, which is of interest to static rewards, represents a user's balance as a
+proportion of the total supply of the token. This method works similarly to how dynamic rebasing
+mechanisms work such as that of Ampleforth.
+Whenever a taxed transaction occurs, the % meant to be re-distributed to token holders is deducted
+from the total "proportion" supply resulting in a user's percentage of total supply being increased.
+Within the system, not all users are integrated in this system and as such the % fee is rewarded to a
+
+subset of the total users of the SafeMoon token. The owner of the contract is able to introduce and
+exclude users from the dynamic balance system at will.
+Privileged Functions
+The contract contains the following privileged functions that are restricted by the onlyOwner modifier.
+They are used to modify the contract configurations and address attributes. We grouped these
+functions below:
+Account management functions for inclusion and exclusion in the fee and reward system:
+excludeFromReward(address account)
+includeInReward(address account)
+excludeFromFee(address account)
+includeInFee(address account)
+Modification of liquidation, tax and max transaction percents of the system:
+function setTaxFeePercent(uint taxFee)
+function setLiquidityFeePercent(uint liquidityFee)
+function setMaxTxPercent(uint maxTxPercent)
+Toggle feature of the LP acquisition mechanism:
+function setSwapAndLiquifyEnabled(bool _enabled)
+
+Findings
+Critical
+Major
+Medium
+Minor
+Informational
+Discussion
+Total Issues
+( . %)
+( . %)
+( . %)
+( . %)
+( . %)
+( . %)
+ID
+Title
+Category
+Severity
+Status
+SSL-
+Incorrect error message
+Logical Issue
+Minor
+Acknowledged
+SSL-
+Redundant code
+Logical Issue
+Informational
+Acknowledged
+SSL-
+Contract gains non-withdrawable
+BNB via the swapAndLiquify
+function
+Logical Issue
+Medium
+Acknowledged
+SSL-
+Centralized risk in addLiquidity
+Centralization /
+Privilege
+Major
+Partially
+Resolved
+SSL-
+Variable could be declared as
+constant
+Gas Optimization
+Informational
+Acknowledged
+SSL-
+Return value not handled
+Volatile Code
+Informational
+Acknowledged
+SSL-
+rd party dependencies
+Control Flow
+Minor
+Acknowledged
+SSL-
+Missing event emitting
+Coding Style
+Informational
+Acknowledged
+SSL-
+Function and variable naming doesn't Coding Style
+match the operating environment
+Informational
+Acknowledged
+SSL-
+Privileged ownership
+Centralization /
+Privilege
+Minor
+Partially
+Resolved
+SSL-
+Typos in the contract
+Coding Style
+Informational
+Acknowledged
+SSL-
+The purpose of function deliver
+Control Flow
+Informational
+Acknowledged
+ID
+Title
+Category
+SSL-
+Possible to gain ownership after
+renouncing the contract ownership
+Logical Issue,
+Centralization /
+Privilege
+Severity
+Minor
+Status
+Acknowledged
+
+* SSL-01 | Incorrect error message
+Category Logical Issue
+Severity Minor
+Location Safemoon.sol:
+Status Acknowledged
+** Description
+The error message in require(_isExcluded[account], "Account is already excluded") does not
+describe the error correctly.
+** Recommendation
+The message "Account is already excluded" can be changed to "Account is not excluded" .
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-02 | Redundant code
+Category Severity Logical Issue
+Informational
+Location Safemoon.sol:
+Status Acknowledged
+** Description
+The condition !_isExcluded[sender] && !_isExcluded[recipient] can be included in else .
+** Recommendation
+The following code can be removed:
+1 ... else if (!_isExcluded[sender] && !_isExcluded[recipient]) {
+_transferStandard(sender, recipient, amount);
+2
+3 } ...
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-03 | Contract gains non-withdrawable BNB via the swapAndLiquify
+function
+Category Logical Issue
+Severity Medium
+Location Safemoon.sol:
+Status Acknowledged
+** Description
+The swapAndLiquify function converts half of the contractTokenBalance SafeMoon tokens to BNB.
+The other half of SafeMoon tokens and part of the converted BNB are deposited into the SafeMoonBNB pool on pancakeswap as liquidity. For every swapAndLiquify function call, a small amount of BNB
+leftover in the contract. This is because the price of SafeMoon drops after swapping the first half of
+SafeMoon tokens into BNBs, and the other half of SafeMoon tokens require less than the converted
+BNB to be paired with it when adding liquidity. The contract doesn't appear to provide a way to
+withdraw those BNB, and they will be locked in the contract forever.
+** Recommendation
+It's not ideal that more and more BNB are locked into the contract over time. The simplest solution is to
+add a withdraw function in the contract to withdraw BNB. Other approaches that benefit the SafeMoon
+token holders can be:
+Distribute BNB to SafeMoon token holders proportional to the amount of token they hold.
+Use leftover BNB to buy back SafeMoon tokens from the market to increase the price of
+SafeMoon.
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-04 | Centralized risk in addLiquidity
+Category Centralization / Privilege
+Severity Major
+Location Safemoon.sol:
+Status Partially Resolved
+** Description
+1 // add the liquidity
+2 uniswapV2Router.addLiquidityETH{value: ethAmount}(
+address(this),
+3
+tokenAmount,
+4
+5
+6
+7
+0, // slippage is unavoidable
+0, // slippage is unavoidable
+owner(),
+8
+9 );
+block.timestamp
+The addLiquidity function calls the uniswapV2Router.addLiquidityETH function with the to address
+specified as owner() for acquiring the generated LP tokens from the SafeMoon-BNB pool. As a result,
+over time the _owner address will accumulate a significant portion of LP tokens.If the _owner is an EOA
+(Externally Owned Account), mishandling of its private key can have devastating consequences to the
+project as a whole.
+** Recommendation
+We advise the to address of the uniswapV2Router.addLiquidityETH function call to be replaced by the
+contract itself, i.e. address(this) , and to restrict the management of the LP tokens within the scope of
+the contractʼs business logic. This will also protect the LP tokens from being stolen if the _owner
+account is compromised. In general, we strongly recommend centralized privileges or roles in the
+protocol to be improved via a decentralized mechanism or via smart-contract based accounts with
+enhanced security practices, f.e. Multisignature wallets.
+Indicatively, here are some feasible solutions that would also mitigate the potential risk:
+Time-lock with reasonable latency, i.e. hours, for awareness on privileged operations;
+Assignment of privileged roles to multi-signature wallets to prevent single point of failure due to
+the private key;
+Introduction of a DAO / governance / voting module to increase transparency and user
+involvement.
+
+** Alleviation
+[SafeMoon Team]: In regards to owner control, we are a fair launch governed by a central board which
+is subject to governmental regulations and law. We are a legally registered entity in accordance to the
+law and jurisdictions in which we operate. SafeMoon is very different from other projects, and our
+differences provide more security for the community vs. anonymous teams and projects. Risks in regard
+to “rug-pulls” or anything else is mitigated due to the fact that every member of SafeMoon would be
+subject to litigation and likely a swift prison sentence. Additionally, outside of the law, our social lives
+would be in ruin, and we would not be able to show our faces in public again, let alone get another job.
+This should be taken into account when looking at the SafeMoon project as a whole.
+Additionally, we have taken serious steps towards further risk mitigation by initially starting this project
+with a fair launch hosted on DxSale, where the LP being immediately locked out of the gate. SafeMoon
+quickly brought in a team willing to go public with their identities to build trust with the community and
+for the project. SafeMoon was quickly registered as a legal entity. We locked the nd, rd, th LPʼs etc
+etc etc and will continue to do so when the LP is not needed. We locked $ million recently via
+Unicrypt. We have publicly expressed our goals and intentions of why we will retain custody of the
+contract. The functions allow additional control for the SafeMoon team to make continued strategic
+plays in regards to long term growth of the community and the project.
+Here is a list of the transactions associated with the locked LPs:
+https://unicrypt.network/amm/pancake/pair/ x adc fb cefa e e f c e c dd c
+https://dxsale.app/app/pages/dxlockview?
+id= &add= xC
+D
+f
+A C A E c D dfc &type=lplock&chain=BSC
+https://dxsale.app/app/pages/dxlockview?
+id= &add= xC
+D
+f
+A C A E c D dfc &type=lplock&chain=BSC
+https://dxsale.app/app/pages/dxlockview?
+id= &add= xC
+D
+f
+A C A E c D dfc &type=lplock&chain=BSC
+
+* SSL-05 | Variable could be declared as constant
+Category Gas Optimization
+Severity Informational
+Location Safemoon.sol
+Status Acknowledged
+** Description
+Variables _tTotal , numTokensSellToAddToLiquidity , _name , _symbol and _decimals could be
+declared as constant since these state variables are never to be changed.
+** Recommendation
+We recommend declaring those variables as constant .
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-06 | Return value not handled
+Category Volatile Code
+Severity Informational
+Location Safemoon.sol:
+Status ~
+Acknowledged
+** Description
+The return values of function addLiquidityETH are not properly handled.
+1
+2
+uniswapV2Router.addLiquidityETH{value: ethAmount}(
+address(this),
+tokenAmount,
+0, // slippage is unavoidable
+0, // slippage is unavoidable
+owner(),
+3
+4
+5
+6
+7
+8
+block.timestamp
+);
+** Recommendation
+We recommend using variables to receive the return value of the functions mentioned above and
+handle both success and failure cases if needed by the business logic.
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-07 | 3rd party dependencies
+Category Control Flow
+Severity Minor
+Location Safemoon.sol
+Status Acknowledged
+** Description
+The contract is serving as the underlying entity to interact with third party PancakeSwap protocols. The
+scope of the audit would treat those rd party entities as black boxes and assume its functional
+correctness. However in the real world, rd parties may be compromised that led to assets lost or
+stolen.
+** Recommendation
+We understand that the business logic of the SafeMoon protocol requires the interaction PancakeSwap
+protocol for adding liquidity to SafeMoon-BNB pool and swap tokens. We encourage the team to
+constantly monitor the statuses of those rd parties to mitigate the side effects when unexpected
+activities are observed.
+** Alleviation
+[SafeMoon Team]: Renouncing ownership of the contract will result in an inability to adapt to rd party
+changes to include exchanges. The team had the foresight to understand this, as our understanding of
+the SafeMoon smart contract is the best. We already have contingency plans for likely upcoming rd
+party changes and growth.
+
+* SSL-08 | Missing event emitting
+Category Coding Style
+Severity Informational
+Location Safemoon.sol
+Status Acknowledged
+** Description
+In contract Safemoon , there are a bunch of functions can change state variables. However, these
+function do not emit event to pass the changes out of chain.
+** Recommendation
+Recommend emitting events, for all the essential state variables that are possible to be changed during
+runtime.
+
+* SSL-09 | Function and variable naming doesn't match the operating environment
+Category Coding Style
+Severity Informational
+Location Safemoon.sol
+Status Acknowledged
+** Description
+The SafeMoon contract uses Pancakeswap for swapping and add liquidity to Pancakeswap pool, but
+naming it Uniswap. Function swapTokensForEth(uint tokenAmount) swaps SafeMoon token for BNB
+instead of ETH.
+** Recommendation
+Change "Uniswap" and "ETH" to "Pancakeswap" and "BNB" in the contract respectively to match the
+operating environment and avoid confusion.
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-10 | Privileged ownership
+Category Centralization / Privilege
+Severity Minor
+Location Safemoon.sol
+Status Partially Resolved
+** Description
+The owner of contract Safemoon has the permission to:
+. change the address that can receive LP tokens,
+. lock the contract,
+. exclude/include addresses from rewards/fees,
+. set taxFee , liquidityFee and _maxTxAmount ,
+. enable swapAndLiquifyEnabled
+without obtaining the consensus of the community.
+** Recommendation
+Renounce ownership when it is the right timing, or gradually migrate to a timelock plus multisig
+governing procedure and let the community monitor in respect of transparency considerations.
+** Alleviation
+[SafeMoon Team]: Consider the critical security concern about privileged ownership, the contract
+doesn't have an update function, thus it will be impossible to update directly. Our plan is to create a
+periphery multisig contract for contract owner functions and assign contract owner to it.
+As of now, there will be no transfer of ownership, more of an extra check for security with keys split
+between the current board members. It will require / keys to do an action on the contract. Board
+Members are the individuals already disclosed and KYC'd by entities like exchanges we listed with, and
+they would not have listed SafeMoon if the team had not passed KYC. Additionally, The project and its
+team are subject to laws and regulations, meaning any action not done in good faith or illegal will result
+in a swift prison sentence. The MultiSig is underway and will be completed as soon as possible, and we
+are adding the multisig as an act of good faith.
+
+* SSL-11 | Typos in the contract
+Category Severity Coding Style
+Informational
+Location Safemoon.sol:
+Status ,
+Acknowledged
+** Description
+There are several typos in the code and comments.
+. In the following code snippet, tokensIntoLiqudity should be tokensIntoLiquidity .
+1
+2
+event SwapAndLiquify(
+uint256 tokensSwapped,
+uint256 ethReceived,
+uint256 tokensIntoLiqudity
+3
+4
+5
+);
+. recieve should be receive and swaping should be swapping in the line of comment //to
+recieve ETH from uniswapV2Router when swaping .
+** Recommendation
+We recommend correcting all typos in the contract.
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-12 | The purpose of function deliver
+Category Control Flow
+Severity Informational
+Location Safemoon.sol
+Status Acknowledged
+** Description
+The function deliver can be called by anyone. It accepts an uint number parameter tAmount . The
+function reduces the SafeMoon token balance of the caller by rAmount , which is tAmount reduces the
+transaction fee. Then, the function adds tAmount to variable _tFeeTotal , which represents the
+contract's total transaction fee. We wish the team could explain more on the purpose of having such
+functionality.
+** Alleviation
+The team acknowledged the finding and had tested the functionality under different scenarios. Given
+the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+* SSL-13 | Possible to gain ownership after renouncing the contract ownership
+Category Logical Issue, Centralization / Privilege
+Severity Location Minor Safemoon.sol: (Ownable)
+Status Acknowledged
+** Description
+An owner is possible to gain ownership of the contract even if he calls function renounceOwnership to
+renounce the ownership. This can be achieved by performing the following operations:
+. Call lock to lock the contract. The variable _previousOwner is set to the current owner.
+. Call unlock to unlock the contract.
+. Call renounceOwnership to leave the contract without an owner.
+. Call unlock to regain ownership.
+** Recommendation
+We advise updating/removing lock and unlock functions in the contract; or removing the
+renounceOwnership if such a privilege retains at the protocol level. If timelock functionality could be
+introduced, we recommend using the implementation of Compound finance as reference. Reference:
+https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol
+** Alleviation
+The team acknowledged the finding, and given the deployed contract cannot be updated, decided to retain the code base unchanged.
+
+Appendix
+Finding Categories
+Gas Optimization
+Gas Optimization findings do not affect the functionality of the code but generate different, more
+optimal EVM opcodes resulting in a reduction on the total gas cost of a transaction.
+Mathematical Operations
+Mathematical Operation findings relate to mishandling of math formulas, such as overflows, incorrect
+operations etc.
+Logical Issue
+Logical Issue findings detail a fault in the logic of the linked code, such as an incorrect notion on how
+block.timestamp works.
+Control Flow
+Control Flow findings concern the access control imposed on functions, such as owner-only functions
+being invoke-able by anyone under certain circumstances.
+Volatile Code
+Volatile Code findings refer to segments of code that behave unexpectedly on certain edge cases that
+may result in a vulnerability.
+Data Flow
+Data Flow findings describe faults in the way data is handled at rest and in memory, such as the result
+of a struct assignment operation affecting an in-memory struct rather than an in-storage one.
+Language Specific
+Language Specific findings are issues that would only arise within Solidity, i.e. incorrect usage of
+private or delete.
+Centralization / Priviledge
+
+Centralization / Priviledge findings refer to the logic or implementation of the code exposing to
+concerns or scenarios that would go against decentralized manners.
+Coding Style
+Coding Style findings usually do not affect the generated byte-code but rather comment on how to
+make the codebase more legible and, as a result, easily maintainable.
+Inconsistency
+Inconsistency findings refer to functions that should seemingly behave similarly yet contain different
+code, such as a constructor assignment imposing different require statements on the input variables
+than a setter function.
+Magic Numbers
+Magic Number findings refer to numeric literals that are expressed in the codebase in their raw format
+and should otherwise be specified as constant contract variables aiding in their legibility and
+maintainability.
+Compiler Error
+Compiler Error findings refer to an error in the structure of the code that renders it impossible to
+compile using the specified version of the project.
+
+Disclaimer
+This report is subject to the terms and conditions (including without limitation, description of services,
+confidentiality, disclaimer and limitation of liability) set forth in the Services Agreement, or the scope of
+services, and terms and conditions provided to the Company in connection with the Agreement. This
+report provided in connection with the Services set forth in the Agreement shall be used by the
+Company only to the extent permitted under the terms and conditions set forth in the Agreement. This
+report may not be transmitted, disclosed, referred to or relied upon by any person for any purposes
+without CertiKʼs prior written consent.
+This report is not, nor should be considered, an “endorsement” or “disapproval” of any particular
+project or team. This report is not, nor should be considered, an indication of the economics or value of
+any “product” or “asset” created by any team or project that contracts CertiK to perform a security
+assessment. This report does not provide any warranty or guarantee regarding the absolute bug-free
+nature of the technology analyzed, nor do they provide any indication of the technologies proprietors,
+business, business model or legal compliance.
+This report should not be used in any way to make decisions around investment or involvement with any
+particular project. This report in no way provides investment advice, nor should be leveraged as
+investment advice of any sort. This report represents an extensive assessing process intending to help
+our customers increase the quality of their code while reducing the high level of risk presented by
+cryptographic tokens and blockchain technology.
+Blockchain technology and cryptographic assets present a high level of ongoing risk. CertiKʼs position
+is that each company and individual are responsible for their own due diligence and continuous
+security. CertiKʼs goal is to help reduce the attack vectors and the high level of variance associated with
+utilizing new and consistently changing technologies, and in no way claims any guarantee of security or
+functionality of the technology we agree to analyze.
+
+About
+Founded in
+by leading academics in the field of Computer Science from both Yale and Columbia
+University, CertiK is a leading blockchain security company that serves to verify the security and
+correctness of smart contracts and blockchain-based protocols. Through the utilization of our worldclass technical expertise, alongside our proprietary, innovative tech, weʼre able to support the success
+of our clients with best-in-class security, all whilst realizing our overarching vision; provable trust for all
+throughout all facets of blockchain.
+

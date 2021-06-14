@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@typechain/ethers-v5": "^7.0.1",
+    "@typechain/hardhat": "^2.0.2",
+    "hardhat": "^2.3.3",
+    "ts-node": "^10.0.0",
+    "typechain": "^5.0.0",
+    "typescript": "^4.3.2"
+  }
+}

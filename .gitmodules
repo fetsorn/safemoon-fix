@@ -1,0 +1,9 @@
+[submodule "safemoon.sol"]
+	path = safemoon.sol
+	url = https://github.com/Safemoon-Protocol/safemoon.sol
+[submodule "6a87a19162e6801f4a643a2089eb5d7f"]
+	path = 6a87a19162e6801f4a643a2089eb5d7f
+	url = https://gist.github.com/aleks-uae/6a87a19162e6801f4a643a2089eb5d7f
+[submodule "safemoon"]
+	path = safemoon.sol
+	url = https://github.com/Safemoon-Protocol/safemoon.sol
