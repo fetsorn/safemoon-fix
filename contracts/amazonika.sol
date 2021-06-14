@@ -939,7 +939,7 @@ contract SafeMoon is Context, IERC20, Ownable {
         uint256 charityFee = calculateCharityFee(tFee);
         uint256 foundationFee = calculateFoundationFee(tFee);
         uint256 newTFee = tFee.sub(charityFee).sub(foundationFee);
-        uint256 newRFee = newTFee.mul(_getRate())
+        uint256 newRFee = newTFee.mul(_getRate());
         _rOwned[_charityAddress] = _rOwned[_charityAddress].add(charityFee);
         _rOwned[_foundationAddress] = _rOwned[_foundationAddress].add(foundationFee);
 

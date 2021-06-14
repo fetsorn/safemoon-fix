@@ -1,7 +1,12 @@
 
+[[./certic.org][certic report for SafeMoon]]
 
+#+begin_src sh
+yarn
+npx hardhat test
+#+end_src
 * fixes
- - [ ] L942: dot comma
+ - [X] L942: dot comma
  - [ ] SSL-01: "Account is already excluded" can be changed to "Account is not excluded"
  - [ ] SSL-01: L1159 condition !_isExcluded[sender] && !_isExcluded[recipient] can be included in else .
  - [ ] SSL-05: Variables _tTotal , numTokensSellToAddToLiquidity , _name , _symbol and _decimals could be declared as constant
