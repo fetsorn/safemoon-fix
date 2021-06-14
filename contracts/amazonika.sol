@@ -710,13 +710,13 @@ contract SafeMoon is Context, IERC20, Ownable {
     address[] private _excluded;
 
     uint256 private constant MAX = ~uint256(0);
-    uint256 private constant _tTotal = 1000000000 * 10**6 * 10**9;
-    uint256 private _rTotal = (MAX - (MAX % _tTotal));
+    uint256 private constant _T_TOTAL = 1000000000 * 10**6 * 10**9;
+    uint256 private _rTotal = (MAX - (MAX % _T_TOTAL));
     uint256 private _tFeeTotal;
 
-    string private constant _name = "Amazonika";
-    string private constant _symbol = "AMAZONIKA";
-    uint8 private constant _decimals = 9;
+    string private constant _NAME = "Amazonika";
+    string private constant _SYMBOL = "AMAZONIKA";
+    uint8 private constant _DECIMALS = 9;
 
     uint256 public _taxFee = 7; // includes sending fees to charity and foundation
     uint256 public _charityFee = 4;
@@ -738,7 +738,7 @@ contract SafeMoon is Context, IERC20, Ownable {
     bool public swapAndLiquifyEnabled = true;
 
     uint256 public _maxTxAmount = 5000000 * 10**6 * 10**9;
-    uint256 private constant numTokensSellToAddToLiquidity = 500000 * 10**6 * 10**9;
+    uint256 private constant NUM_TOKENS_SELL_TO_ADD_LIQUIDITY = 500000 * 10**6 * 10**9;
 
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
@@ -773,23 +773,23 @@ contract SafeMoon is Context, IERC20, Ownable {
         _rOwned[_charityAddress] = 0;
         _rOwned[_foundationAddress] = 0;
 
-        emit Transfer(address(0), _msgSender(), _tTotal);
+        emit Transfer(address(0), _msgSender(), _T_TOTAL);
     }
 
     function name() public view returns (string memory) {
-        return _name;
+        return _NAME;
     }
 
     function symbol() public view returns (string memory) {
-        return _symbol;
+        return _SYMBOL;
     }
 
     function decimals() public view returns (uint8) {
-        return _decimals;
+        return _DECIMALS;
     }
 
     function totalSupply() public view override returns (uint256) {
-        return _tTotal;
+        return _T_TOTAL;
     }
 
     function balanceOf(address account) public view override returns (uint256) {
@@ -845,7 +845,7 @@ contract SafeMoon is Context, IERC20, Ownable {
     }
 
     function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
-        require(tAmount <= _tTotal, "Amount must be less than supply");
+        require(tAmount <= _T_TOTAL, "Amount must be less than supply");
         if (!deductTransferFee) {
             (uint256 rAmount,,,,,) = _getValues(tAmount);
             return rAmount;
@@ -912,7 +912,7 @@ contract SafeMoon is Context, IERC20, Ownable {
     }
 
     function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner() {
-        _maxTxAmount = _tTotal.mul(maxTxPercent).div(
+        _maxTxAmount = _T_TOTAL.mul(maxTxPercent).div(
             10**2
         );
     }
@@ -970,13 +970,13 @@ contract SafeMoon is Context, IERC20, Ownable {
 
     function _getCurrentSupply() private view returns(uint256, uint256) {
         uint256 rSupply = _rTotal;
-        uint256 tSupply = _tTotal;
+        uint256 tSupply = _T_TOTAL;
         for (uint256 i = 0; i < _excluded.length; i++) {
-            if (_rOwned[_excluded[i]] > rSupply || _tOwned[_excluded[i]] > tSupply) return (_rTotal, _tTotal);
+            if (_rOwned[_excluded[i]] > rSupply || _tOwned[_excluded[i]] > tSupply) return (_rTotal, _T_TOTAL);
             rSupply = rSupply.sub(_rOwned[_excluded[i]]);
             tSupply = tSupply.sub(_tOwned[_excluded[i]]);
         }
-        if (rSupply < _rTotal.div(_tTotal)) return (_rTotal, _tTotal);
+        if (rSupply < _rTotal.div(_T_TOTAL)) return (_rTotal, _T_TOTAL);
         return (rSupply, tSupply);
     }
 
@@ -1061,14 +1061,14 @@ contract SafeMoon is Context, IERC20, Ownable {
             contractTokenBalance = _maxTxAmount;
         }
 
-        bool overMinTokenBalance = contractTokenBalance >= numTokensSellToAddToLiquidity;
+        bool overMinTokenBalance = contractTokenBalance >= NUM_TOKENS_SELL_TO_ADD_LIQUIDITY;
         if (
             overMinTokenBalance &&
             !inSwapAndLiquify &&
             from != uniswapV2Pair &&
             swapAndLiquifyEnabled
         ) {
-            contractTokenBalance = numTokensSellToAddToLiquidity;
+            contractTokenBalance = NUM_TOKENS_SELL_TO_ADD_LIQUIDITY;
             //add liquidity
             swapAndLiquify(contractTokenBalance);
         }
