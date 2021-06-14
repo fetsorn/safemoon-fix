@@ -776,15 +776,15 @@ contract SafeMoon is Context, IERC20, Ownable {
         emit Transfer(address(0), _msgSender(), _T_TOTAL);
     }
 
-    function name() public view returns (string memory) {
+    function name() public pure returns (string memory) {
         return _NAME;
     }
 
-    function symbol() public view returns (string memory) {
+    function symbol() public pure returns (string memory) {
         return _SYMBOL;
     }
 
-    function decimals() public view returns (uint8) {
+    function decimals() public pure returns (uint8) {
         return _DECIMALS;
     }
 
