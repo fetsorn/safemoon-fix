@@ -1,13 +1,93 @@
 
-[[./certic.org][certic report for SafeMoon]]
+Certic report for SafeMoon [[./certic.org][.org]] [[./CertiK+Audit+Report+for+SafeMoon.pdf][.pdf]]
 
 #+begin_src sh
+git submodule init
+git submodule update
 yarn
 npx hardhat test
 #+end_src
+
 * fixes
  - [X] L942: dot comma
  - [X] SSL-01: "Account is already excluded" can be changed to "Account is not excluded"
  - [X] SSL-02: L1159 condition !_isExcluded[sender] && !_isExcluded[recipient] can be included in else .
  - [X] SSL-05: Variables _tTotal , numTokensSellToAddToLiquidity , _name , _symbol and _decimals could be declared as constant
  - [X] SSL-11 | Typos in the contract
+ - change inSwapAndLiquify visibility to private
+ - remove rFee from transferStandard
+ - [ ] comments
+* draft changes
+** constants
+#+begin_src diff
+@@ -719,14 +719,21 @@
+- string private _name = "SafeMoon";
+- string private _symbol = "SAFEMOON";
++ string private _name = "Amazonika";
++ string private _symbol = "AMAZONIKA";
+
+- uint256 public _taxFee = 5;
++ uint256 public _taxFee = 7; // includes sending fees to charity and foundation
++ uint256 public _charityFee = 4;
++ uint256 public _foundationFee = 1;
++
++ address public _charityAddress = address(0xfE0AcCb6f4B7e7c48CD4c87894523D6A8e01d9cA);
++ address public _foundationAddress = address(0xAf5b234b0c93c160a6b4121dFD49BDb0886ABcBc);
+
+- uint256 public _liquidityFee = 5;
++ uint256 public _liquidityFee = 3;
+#+end_src
+** set premine don't needed in constructor
+#+begin_src diff
+@@ -767,6 +774,10 @@
++        // set premine don't needed in constructor since it can be done manually after deployment (burn too)
++        _rOwned[_charityAddress] = 0;
++        _rOwned[_foundationAddress] = 0;
+#+end_src
+** calculate fees
+#+begin_src diff
+@@ -981,6 +1005,18 @@
+#+end_src
+#+begin_src solidity
+function calculateCharityFee(uint256 _fee) private view returns (uint256) {
+    return _fee.mul(_charityFee).div(
+        _taxFee
+    );
+}
+
+function calculateFoundationFee(uint256 _fee) private view returns (uint256) {
+    return _fee.mul(_foundationFee).div(
+        _taxFee
+    );
+}
+#+end_src
+** reflectFeeCharityFoundation
+#+begin_src diff
+@@ -922,6 +934,18 @@
+#+end_src
+#+begin_src solidity
+function _reflectFeeCharityFoundation(uint256 tFee) private {
+    uint256 charityFee = calculateCharityFee(tFee);
+    uint256 foundationFee = calculateFoundationFee(tFee);
+    uint256 newTFee = tFee.sub(charityFee).sub(foundationFee);
+    uint256 newRFee = newTFee.mul(_getRate());
+    _rOwned[_charityAddress] = _rOwned[_charityAddress].add(charityFee);
+    _rOwned[_foundationAddress] = _rOwned[_foundationAddress].add(foundationFee);
+
+    _rTotal = _rTotal.sub(newRFee);
+    _tFeeTotal = _tFeeTotal.add(newTFee);
+}
+#+end_src
+** transferStandart with charity fee
+#+begin_src diff
+@@ -1136,7 +1172,7 @@
+    function _transferStandard(address sender, address recipient, uint256 tAmount) private {
+        (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity) = _getValues(tAmount);
+         _rOwned[sender] = _rOwned[sender].sub(rAmount);
+         _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
+         _takeLiquidity(tLiquidity);
+-        _reflectFee(rFee, tFee);
++        _reflectFeeCharityFoundation(tFee);
+         emit Transfer(sender, recipient, tTransferAmount);
+     }
+#+end_src
