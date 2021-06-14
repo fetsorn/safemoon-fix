@@ -765,7 +765,7 @@ contract SafeMoon is Context, IERC20, Ownable {
         // set the rest of the contract variables
         uniswapV2Router = _uniswapV2Router;
 
-        //exclude owner and this contract from fee
+        // exclude owner and this contract from fee
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
 
@@ -922,7 +922,7 @@ contract SafeMoon is Context, IERC20, Ownable {
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
 
-     //to receive ETH from uniswapV2Router when swapping
+    // to receive ETH from uniswapV2Router when swapping
     receive() external payable {}
 
     function _reflectFee(uint256 rFee, uint256 tFee) private {
@@ -1069,20 +1069,20 @@ contract SafeMoon is Context, IERC20, Ownable {
             swapAndLiquifyEnabled
         ) {
             contractTokenBalance = NUM_TOKENS_SELL_TO_ADD_LIQUIDITY;
-            //add liquidity
+            // add liquidity
             swapAndLiquify(contractTokenBalance);
         }
 
-        //indicates if fee should be deducted from transfer
+        // indicates if fee should be deducted from transfer
         bool takeFee = true;
 
-        //if any account belongs to _isExcludedFromFee account then remove the fee
+        // if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFee[from] || _isExcludedFromFee[to]){
             takeFee = false;
         }
 
-        //transfer amount, it will take tax, burn, liquidity fee
-        _tokenTransfer(from,to,amount,takeFee);
+        // transfer amount, it will take tax, burn, liquidity fee
+        _tokenTransfer(from, to, amount, takeFee);
     }
 
     function swapAndLiquify(uint256 contractTokenBalance) private lockTheSwap {
@@ -1141,8 +1141,8 @@ contract SafeMoon is Context, IERC20, Ownable {
         );
     }
 
-    //this method is responsible for taking all fee, if takeFee is true
-    function _tokenTransfer(address sender, address recipient, uint256 amount,bool takeFee) private {
+    // this method is responsible for taking all fee, if takeFee is true
+    function _tokenTransfer(address sender, address recipient, uint256 amount, bool takeFee) private {
         if(!takeFee)
             removeAllFee();
 
@@ -1188,8 +1188,4 @@ contract SafeMoon is Context, IERC20, Ownable {
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
     }
-
-
-
-
 }
